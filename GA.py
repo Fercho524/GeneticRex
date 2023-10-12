@@ -5,7 +5,7 @@ from Brain import *
 from Constants import *
 
 
-MUTATE_RATE = 0.8
+MUTATE_RATE = 0.3
 MUTATION_N = 3
 
 

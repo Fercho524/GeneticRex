@@ -22,8 +22,9 @@ FRAME_INTERVAL = 1 / GAME_FRAMES
 
 # GAME SPEED AND HARDNESS
 GAME_SPEED = 5
-SPEED_GROW = 2
+SPEED_GROW = 10
 SCORE_INCREASE = 0.1
+X_BG = 0
 
 # COLORS
 TEXT_COLOR = (20,20,20)
@@ -83,9 +84,7 @@ RUNNING = True
 DINO_SELECTED = 3
 GENERATION = 1
 
-
 # SPRITES
-
 RUNNING = [
     pygame.transform.scale(pygame.image.load(os.path.join("Assets/Dino", "DinoRun1.png")),(DINO_WIDTH,DINO_HEIGHT)),
     pygame.transform.scale(pygame.image.load(os.path.join("Assets/Dino", "DinoRun2.png")),(DINO_WIDTH,DINO_HEIGHT))
@@ -119,8 +118,6 @@ def check_collisions(x1, y1, w1, h1, x2, y2, w2, h2):
     return x1 < x2 + w2 and x1 + w1 > x2 and y1 < y2 + h2 and y1 + h1 > y2
 
 
-X_BG = 0
-
 # Draw the ground and baackground
 def draw_background(game_screen):
     pygame.draw.rect(
@@ -147,7 +144,6 @@ def draw_ground(game_screen):
 # Generate random color
 def random_color():
     return COLORS[random.randint(0, len(COLORS))-1]
-
 
 
 # The Dino has a brain that gives a behavior
@@ -219,12 +215,6 @@ class Dinosaur:
                 self.jump_time = False
 
 
-# DINOSAURS OBJECT ARRAY
-DINOS = [Dinosaur(k, random.randint(DINO_MIN_X, DINO_MAX_X), HEIGHT - GROUND_HEIGHT-DINO_HEIGHT) for k in range(NUM_DINOS)]
-
-
-
-
 def draw_dinos(dinos, game_screen):
     for dino in dinos:
         if dino.live:
@@ -270,8 +260,6 @@ class Cloud:
             self.x = WIDTH + random.randint(1000, 3000)
             self.y = random.randint(50, 300)
 
-NUM_CLOUDS = 5
-CLOUDS = [ Cloud(random.randint(1000, 3000),random.randint(50, 300)) for k in range(NUM_CLOUDS)]
 
 # Create a random obstacle positions
 def obstacle_bounds():
@@ -281,7 +269,6 @@ def obstacle_bounds():
         random.randint(MIN_OBS_WIDTH, MAX_OBS_WIDTH),
         OBS_HEIGHT
     ]
-
 
 
 # Only draws the obstacles with the OBSTACLES_POSITION information and OBSTACLES array
@@ -307,6 +294,21 @@ def update_obstacles():
         if OBSTACLES_POSITION[i][0] < 0:
             OBSTACLES_POSITION[i][0] += last + int(MIN_GAP + (MAX_GAP-MIN_GAP)*random.random())
             OBSTACLES_POSITION[i][2] = random.randint(MIN_OBS_WIDTH, MAX_OBS_WIDTH)
+
+
+def handle_events():
+    for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+
+
+NUM_CLOUDS = 5
+CLOUDS = [ Cloud(random.randint(1000, 3000),random.randint(50, 300)) for k in range(NUM_CLOUDS)]
+
+# DINOSAURS OBJECT ARRAY
+DINOS = [Dinosaur(k, random.randint(DINO_MIN_X, DINO_MAX_X), HEIGHT - GROUND_HEIGHT-DINO_HEIGHT) for k in range(NUM_DINOS)]
+
 
 
 def init_game():
@@ -357,7 +359,7 @@ def evolve(scores):
     for dino in population:
         reproducted.append(cross(fathers[random.randint(0,DINO_SELECTED-1)],dino))
 
-    # Elitismo
+    # Elitism
     for dino in fathers:
         reproducted.append(dino)
         
@@ -373,13 +375,6 @@ def evolve(scores):
         DINOS[i] = Dinosaur(i, random.randint(DINO_MIN_X, DINO_MAX_X), HEIGHT - GROUND_HEIGHT-DINO_HEIGHT,newbrain) 
 
     GENERATION += 1
-
-
-def handle_events():
-    for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
 
 
 # Checks colisions between dinos and obstacles
@@ -467,7 +462,7 @@ def main():
                 dino.score = GLOBAL_SCORE
 
         # WHEN SCORE UP, SPEED UP
-        if GLOBAL_SCORE % 100 == 0:
+        if GLOBAL_SCORE % 10 == 0:
             GAME_SPEED += SPEED_GROW
 
         if GLOBAL_SCORE > HIGH_SCORE:
